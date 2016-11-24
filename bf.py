@@ -1,14 +1,16 @@
 import sys
 
 DEFAULT_TAPE_SIZE = 30000
+DEFAULT_CELL_SIZE = 256
 
 class BrainFuckTape:
-    def __init__(self, code=None, size=None):
+    def __init__(self, code=None, tape_size=None, cell_size=None):
         self._pointer = 0
 
-        self._size = size
-        if(None == size):
-            self._size = DEFAULT_TAPE_SIZE
+        self._tape_size = tape_size
+        if(None == tape_size):
+            self._tape_size = DEFAULT_TAPE_SIZE
+        self._tape = [0] * self._tape_size
 
         self._code = code
         if(None == code):
@@ -18,7 +20,8 @@ class BrainFuckTape:
         NotImplemented
 
     def _plus(self):
-        NotImplemented
+        self._tape[self._pointer] += 1
+        self._tape[self._pointer] %= 256
 
     def _minus(self):
         NotImplemented

@@ -2,7 +2,7 @@ import sys
 
 class BrainFuckMachine:
 
-    DEFAULT_TAPE_SIZE = 30000
+    DEFAULT_TAPE_SIZE = 9999
     DEFAULT_CELL_SIZE = 256
 
     def __init__(

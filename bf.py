@@ -7,7 +7,9 @@ class BrainFuckMachine:
 
     def __init__(
             self,
-            code=None,
+            code_file=None,
+            input_file=None,
+            output_file=None,
             tape_size=DEFAULT_TAPE_SIZE,
             cell_size=DEFAULT_CELL_SIZE,
             cell_wrap=False,
@@ -15,9 +17,18 @@ class BrainFuckMachine:
             tape_wrap=False,
             extend_tape=False
         ):
-        self._code = code
-        if self._code == None:
+        if code_file == None:
             self._code = sys.stdin.read()
+        else:
+            self._code = code_file.read()
+
+        self._input_file = input_file
+        if self._input_file == None:
+            self._input_file = sys.stdin
+
+        self._output_file = output_file
+        if self._output_file == None:
+            self._output_file = sys.stdout
 
         self._tape_ptr = 0
 
@@ -109,10 +120,10 @@ class BrainFuckMachine:
                 cnt -= 1
 
     def _output(self):
-        sys.stdout.write(chr(self._tape[self._tape_ptr]))
+        self._output_file.write(chr(self._tape[self._tape_ptr]))
 
     def _input(self):
-        self._tape[self._tape_ptr] = ord(sys.stdin.read(1))
+        self._tape[self._tape_ptr] = ord(self._input_file.read(1))
 
 def main():
     bf_tape = BrainFuckMachine()

@@ -4,6 +4,7 @@ DEFAULT_TAPE_SIZE = 30000
 DEFAULT_CELL_SIZE = 256
 
 class BrainFuckMachine:
+
     def __init__(
             self,
             code=None,
@@ -30,25 +31,24 @@ class BrainFuckMachine:
         self._tape_wrap = tape_wrap
         self._extend_tape = extend_tape
 
+        self._instruction_function_dict = {
+            '+' : self._plus,
+            '-' : self._minus,
+            '>' : self._point_right,
+            '<' : self._point_left,
+            '[' : self._start_loop,
+            ']' : self._end_loop,
+            '.' : self._output,
+            ',' : self._input
+        }
+
     def run(self):
         while self._code_ptr in range(len(self._code)):
             instruction = self._code[self._code_ptr]
-            if instruction == '+':
-                self._plus()
-            elif instruction == '-':
-                self._minus()
-            elif instruction == '>':
-                self._point_right()
-            elif instruction == '<':
-                self._point_left()
-            elif instruction == '[':
-                self._start_loop()
-            elif instruction == ']':
-                self._end_loop()
-            elif instruction == '.':
-                self._output()
-            elif instruction == ',':
-                self._input()
+            try:
+                self._instruction_function_dict[instruction]()
+            except:
+                pass
             self._code_ptr += 1
 
     def _plus(self):

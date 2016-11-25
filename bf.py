@@ -24,7 +24,6 @@ class BrainFuckMachine:
         self._tape = [0] * self._tape_size
 
         self._code_ptr = 0
-        self._code = code
 
         self._cell_size = cell_size
         self._cell_wrap = cell_wrap
@@ -105,9 +104,8 @@ class BrainFuckMachine:
         self._tape[self._tape_ptr] = ord(sys.stdin.read(1))
 
 def main():
-    with open("test.bf", "r") as code:
-        bf_tape = BrainFuckMachine(code=code.read())
-        bf_tape.run()
+    bf_tape = BrainFuckMachine()
+    bf_tape.run()
 
 if __name__ == "__main__":
     main()

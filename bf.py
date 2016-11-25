@@ -1,9 +1,10 @@
+import argparse
 import sys
 
-class BrainFuckMachine:
+DEFAULT_TAPE_SIZE = 9999
+DEFAULT_CELL_SIZE = 128
 
-    DEFAULT_TAPE_SIZE = 9999
-    DEFAULT_CELL_SIZE = 128
+class BrainFuckMachine:
 
     def __init__(
             self,
@@ -13,9 +14,9 @@ class BrainFuckMachine:
             tape_size=DEFAULT_TAPE_SIZE,
             cell_size=DEFAULT_CELL_SIZE,
             cell_wrap=False,
-            cell_overflow=False,
             tape_wrap=False,
-            extend_tape=False
+            extend_tape=False,
+            debug_level=0
         ):
         if code_file == None:
             self._code = sys.stdin.read()
@@ -39,9 +40,10 @@ class BrainFuckMachine:
 
         self._cell_size = cell_size
         self._cell_wrap = cell_wrap
-        self._cell_overflow = cell_overflow
         self._tape_wrap = tape_wrap
         self._extend_tape = extend_tape
+
+        self._debug_level = debug_level
 
         self._instruction_function_dict = {
             '+' : self._plus,
@@ -68,19 +70,11 @@ class BrainFuckMachine:
         self._tape[self._tape_ptr] += 1
         if self._cell_wrap:
             self._tape[self._tape_ptr] %= self._cell_size
-        elif self._cell_overflow:
-            if self._tape[self._tape_ptr] == self._cell_size:
-                # TODO: throw overflow exception
-                NotImplemented
 
     def _minus(self):
         self._tape[self._tape_ptr] -= 1
         if self._cell_wrap:
             self._tape[self._tape_ptr] %= self._cell_size
-        elif self._cell_overflow:
-            if self._tape[self._tape_ptr] == -1:
-                # TODO: throw overflow exception
-                NotImplemented
 
     def _point_right(self):
         self._tape_ptr += 1
@@ -126,8 +120,94 @@ class BrainFuckMachine:
         self._tape[self._tape_ptr] = ord(self._input_file.read(1))
 
 def main():
-    bf_tape = BrainFuckMachine()
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "-c", "--code",
+        help="The file to read brainfuck code from"
+    )
+    parser.add_argument(
+        "-i", "--input",
+        help="The file to read input from with the , operator"
+    )
+    parser.add_argument(
+        "-o", "--output",
+        help="The file to write to with the . operator"
+    )
+    parser.add_argument(
+        "-l", "--length",
+        type=int,
+        default=DEFAULT_TAPE_SIZE,
+        help="The number of cells in the tape"
+    )
+    parser.add_argument(
+        "-s", "--size",
+        type=int,
+        default=DEFAULT_CELL_SIZE,
+        help="The size maximum size that can be stored in a cell"
+    )
+    parser.add_argument(
+        "-e", "--extend",
+        action="store_true",
+        help="Extends the tape if the program attempts to go beyond the edges"
+    )
+    parser.add_argument(
+        "-a", "--arbitrary",
+        action="store_true",
+        help="Allows cells to grow to arbitrary sizes"
+    )
+    parser.add_argument(
+        "-w", "--cellwrap",
+        action="store_true",
+        help="If the cell's value overflows, it wraps like integer overflow"
+    )
+    parser.add_argument(
+        "-t", "--tapewrap",
+        action="store_true",
+        help="If the cell pointer overflows, it wraps to the tape's other side"
+    )
+    parser.add_argument(
+        "-d", "--debuglevel",
+        type=int,
+        default=0,
+        help="The amount of spam to print"
+    )
+    args = parser.parse_args()
+
+    files_to_close = []
+
+    code_filename = args.code
+    code_file = None
+    if code_filename != None:
+        code_file = open(code_filename, "r")
+        files_to_close.append(code_file)
+
+    input_filename = args.input
+    input_file = None
+    if input_filename != None:
+        input_file = open(input_filename, "r")
+        files_to_close.append(input_file)
+
+    output_filename = args.output
+    output_file = None
+    if output_filename != None:
+        output_file = open(output_filename, "w")
+        files_to_close.append(output_file)
+
+    bf_tape = BrainFuckMachine(
+        code_file=code_file,
+        input_file=input_file,
+        output_file=output_file,
+        tape_size=args.length,
+        cell_size=args.size,
+        cell_wrap=args.cellwrap,
+        tape_wrap=args.tapewrap,
+        extend_tape=args.extend,
+        debug_level=args.debuglevel
+    )
     bf_tape.run()
+
+    for f in files_to_close:
+        f.close()
 
 if __name__ == "__main__":
     main()

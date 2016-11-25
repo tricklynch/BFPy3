@@ -3,15 +3,16 @@ import sys
 class BrainFuckMachine:
 
     DEFAULT_TAPE_SIZE = 9999
-    DEFAULT_CELL_SIZE = 256
+    DEFAULT_CELL_SIZE = 128
 
     def __init__(
             self,
             code=None,
             tape_size=DEFAULT_TAPE_SIZE,
             cell_size=DEFAULT_CELL_SIZE,
-            cell_wrap=True,
-            tape_wrap=True,
+            cell_wrap=False,
+            cell_overflow=False,
+            tape_wrap=False,
             extend_tape=False
         ):
         self._code = code
@@ -27,6 +28,7 @@ class BrainFuckMachine:
 
         self._cell_size = cell_size
         self._cell_wrap = cell_wrap
+        self._cell_overflow = cell_overflow
         self._tape_wrap = tape_wrap
         self._extend_tape = extend_tape
 
@@ -42,6 +44,7 @@ class BrainFuckMachine:
         }
 
     def run(self):
+        # TODO: throw exception if square brackets are unbalanced
         while self._code_ptr in range(len(self._code)):
             instruction = self._code[self._code_ptr]
             try:
@@ -54,11 +57,19 @@ class BrainFuckMachine:
         self._tape[self._tape_ptr] += 1
         if self._cell_wrap:
             self._tape[self._tape_ptr] %= self._cell_size
+        elif self._cell_overflow:
+            if self._tape[self._tape_ptr] == self._cell_size:
+                # TODO: throw overflow exception
+                NotImplemented
 
     def _minus(self):
         self._tape[self._tape_ptr] -= 1
         if self._cell_wrap:
             self._tape[self._tape_ptr] %= self._cell_size
+        elif self._cell_overflow:
+            if self._tape[self._tape_ptr] == -1:
+                # TODO: throw overflow exception
+                NotImplemented
 
     def _point_right(self):
         self._tape_ptr += 1
